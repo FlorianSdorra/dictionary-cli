@@ -7,29 +7,38 @@ const fields = "definitions";
 const strictMatch = "false";
 
 const options = {
-    host: 'od-api.oxforddictionaries.com',
-    port: '443',
-    path: '/api/v2/entries/en-gb/' + wordId + '?fields=' + fields + '&strictMatch=' + strictMatch,
-    method: "GET",
-    headers: {
-        'app_id': app_id,
-        'app_key': app_key
-    }
+  host: "od-api.oxforddictionaries.com",
+  port: "443",
+  path:
+    "/api/v2/entries/en-gb/" +
+    wordId +
+    "?fields=" +
+    fields +
+    "&strictMatch=" +
+    strictMatch,
+  method: "GET",
+  headers: {
+    app_id: app_id,
+    app_key: app_key
+  }
 };
 
-http.get(options, (resp) => {
-    let body = '';
-    resp.on('data', (d) => {
-        body += d;
+http.get(options, resp => {
+  let body = "";
+  resp.on("data", d => {
+    body += d;
+  });
+  resp.on("end", () => {
+    let parsed = JSON.parse(body);
+
+    let res = parsed.results[0].lexicalEntries[0].entries[0].senses;
+
+    let searchWord = wordId.toString();
+    let text = parsed.results[0].lexicalEntries[0].lexicalCategory.text;
+
+    console.log(`${searchWord} (${text}) `);
+    res.forEach((el, index) => {
+      console.log(`${index + 1}: ${el.definitions[0]}`);
     });
-    resp.on('end', () => {
-        let parsed = JSON.parse(body);
-
-
-        let res = parsed.results[0].lexicalEntries[0].entries[0].senses;
-
-        res.forEach(el => {
-            console.log(el.definitions[0]);
-        });
-    });
+  });
 });
